@@ -72,7 +72,7 @@ export default {
     }),
     mounted: function(){
         this.thisYear = new Date().getFullYear();
-        console.log(this.thisYear)
+        // console.log(this.thisYear)
     }
 }
 </script>

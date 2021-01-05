@@ -4,110 +4,39 @@
     <section class="women-banner spad">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-12 mt-5">
+                <div class="col-lg-12 mt-5" v-if="products.length > 0">
                     <carousel class="product-slider" :nav="false" :items="3" :autoplay="true">
-                        <div class="product-item">
+                        <div class="product-item" v-for="item in products" :key="item.id">
                             <div class="pi-pic">
-                                <img src="img/mickey1.jpg" alt="" />
+                                <img :src="item.product_galleries[0].photo" alt="" />
                                 <ul>
-                                    <li class="w-icon active">
+                                    <li class="w-icon active" @click="saveCarts(item.id, item.name, item.product_galleries[0].photo, item.price)">
                                         <a href="#"><i class="icon_bag_alt"></i></a>
                                     </li>
                                     <li class="quick-view">
-                                        <router-link to="/product">+ Quick view</router-link>
+                                        <router-link :to="'/product/'+item.id">+ Quick view</router-link>
                                     </li>
                                 </ul>
                             </div>
                             <div class="pi-text">
-                                <div class="catagory-name">Coat</div>
+                                <div class="catagory-name">{{item.type}}</div>
                                 <router-link to="/product">
                                 <a href="#">
-                                    <h5>Mickey Baggy</h5>
+                                    <h5>{{ item.name }}</h5>
                                 </a>
                                 </router-link>
                                 <div class="product-price">
-                                    $14.00
-                                    <span>$35.00</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="product-item">
-                            <div class="pi-pic">
-                                <img src="img/products/women-2.jpg" alt="" />
-                                <ul>
-                                    <li class="w-icon active">
-                                        <a href="#"><i class="icon_bag_alt"></i></a>
-                                    </li>
-                                    <li class="quick-view">
-                                        <router-link to="/product">
-                                        + Quick View
-                                        </router-link>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="pi-text">
-                                <div class="catagory-name">Shoes</div>
-                                <router-link to="/product">
-                                <a href="#">
-                                    <h5>Guangzhou sweater</h5>
-                                </a>
-                                </router-link>
-                                <div class="product-price">
-                                    $13.00
-                                </div>
-                            </div>
-                        </div>
-                        <div class="product-item">
-                            <div class="pi-pic">
-                                <img src="img/products/women-3.jpg" alt="" />
-                                <ul>
-                                    <li class="w-icon active">
-                                        <a href="#"><i class="icon_bag_alt"></i></a>
-                                    </li>
-                                    <li class="quick-view">
-                                        <router-link to="/product">+ Quick view</router-link>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="pi-text">
-                                <div class="catagory-name">Towel</div>
-                                <a href="#">
-                                    <h5>Pure Pineapple</h5>
-                                </a>
-                                <div class="product-price">
-                                    $34.00
-                                </div>
-                            </div>
-                        </div>
-                        <div class="product-item">
-                            <div class="pi-pic">
-                                <img src="img/products/women-4.jpg" alt="" />
-                                <ul>
-                                    <li class="w-icon active">
-                                        <a href="#"><i class="icon_bag_alt"></i></a>
-                                    </li>
-                                    <li class="quick-view">
-                                        <router-link to="/product">
-                                        + Quick view</router-link>
-                                        </li>
-                                    <!-- <li class="w-icon">
-                                        <a href="#"><i class="fa fa-random"></i></a>          
-                                    </li> -->
-                                </ul>
-                            </div>
-                            <div class="pi-text">
-                                <div class="catagory-name">Towel</div>
-                                <router-link to="/product">
-                                <a href="#">
-                                    <h5>Converse Shoes</h5>
-                                </a>
-                                </router-link>
-                                <div class="product-price">
-                                    $34.00
+                                    Rp {{ item.price.toLocaleString('id-ID') }}
+                                    <!-- <span>$35.00</span> -->
                                 </div>
                             </div>
                         </div>
                     </carousel>
+                </div>
+                <div class="col-lg-12" v-else>
+                    <p>
+                        Produk tidak tersedia
+                    </p>
                 </div>
             </div>
         </div>
@@ -118,10 +47,41 @@
 
 <script>
 import carousel from 'vue-owl-carousel'
+import axios from 'axios'
 export default {
     name: 'carousel-woman',
     components: {
         carousel
+    },
+    data(){
+        return{
+            products: [],
+            carts: []
+        }
+    },
+    mounted(){
+        axios.get("http://localhost/laravue-backend/public/api/products")
+        .then((response) => {
+            this.products = response.data.data.data
+        })
+        .catch((error) => {
+            console.log(error)
+        })
+    },
+    methods: {
+        saveCarts(idProduct, productName, productPhoto, productPrice){
+
+          let productStored = {
+              "id": idProduct,
+              "name": productName,
+              "photo": productPhoto,
+              "price": productPrice
+          }
+          this.carts.push(productStored)
+          const parsed = JSON.stringify(this.carts)
+          localStorage.setItem('carts', parsed)
+          window.location.reload()
+      }
     }
 }
 </script>
